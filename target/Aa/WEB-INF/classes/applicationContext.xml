@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/springtx.xsd">
+
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!-- 配置数据源 此处使用c3p0连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!--配置连接池属性-->
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!--c3p0连接池私有属性-->
+        <property name="maxPoolSize" value="${maxPoolSize}"/>
+        <property name="minPoolSize" value="${minPoolSize}"/>
+        <property name="autoCommitOnClose" value="false"/>
+        <property name="checkoutTimeout" value="${checkoutTimeout}"/>
+        <property name="acquireRetryAttempts" value="${acquireRetryAttempts}"/>
+    </bean>
+
+    <!-- mybatis核心对象sqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 引用数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- mybatis配置文件的路径 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!-- 设置别名（typeAliasesPackage会自动为指定包下的类设置别名 默认使用类名 cn.aa.pojo.User ==> user）-->
+        <property name="typeAliasesPackage" value="cn.aa.pojo"/>
+        <!-- mapper映射文件的路径 -->
+        <property name="mapperLocations" value="classpath:mappers/*.xml"/>
+    </bean>
+
+
+    <!-- MapperScannerConfigurer会扫描指定包下的所有接口，自动生成bean（bean id同接口名 首字母小写 UserDao ==> userDao）并为其创建一个动态代理 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 显式指定sqlSessionFactory 若不指定sqlSessionFactoryBeanName 则默认在spring配置文件中按类型寻找sqlSessionFactory自动注入 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- 要扫描的包 -->
+        <property name="basePackage" value="cn.aa.dao"/>
+    </bean>
+
+    <!-- 扫描指定包下的注解使其生效 -->
+    <context:component-scan base-package="cn.aa.service"/>
+
+    <!-- 配置声明式事务 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    tag: @mapper mapper映射文件根节点（必须要有）
+    props: @namespace mapper映射文件的命名空间，必须全项目唯一
+-->
+<mapper namespace="cn.aa.dao.UserMapper">
+    <!--
+        tag: @select 表示一个查询语句
+        props: @id mapper namespace下的唯一id，用于区分不同的sql语句
+        @parameterType sql参数，在mapper接口内的抽象方法指定参数类型及参数名字，即可在sql语句中直接使用#{}或${}的方式获取参数值
+        @resultType sql语句的返回值类型，此处指定为User实体类（在spring整合mybatis时配置了SqlSessionFactoryBean的typeAliasesPackage属性，因此可以直接使用其别名而不必使用完全限定名（包名））
+     -->
+    <select id="getUserByID" parameterType="int" resultType="User">
+      select * from `user` where uid = #{id}
+   </select>
+
+</mapper>
